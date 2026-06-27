@@ -1,4 +1,4 @@
-name: "AWS Terraform DevSecOps"
+name: "AWS Terraform - Destruction Manuelle Infra AWS"
 
 on:
   push:
