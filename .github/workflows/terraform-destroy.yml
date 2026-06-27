@@ -1,25 +1,19 @@
-name: "AWS Terraform - Destruction Manuelle Infra AWS"
+name: "AWS Terraform - Destruction Manuelle"
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
-  # ==========================================
-  # JOB 1 : SÉCURITÉ, LINTEUR & QUALITÉ IaC
-  # ==========================================
-  terraform-checks:
-    name: "Terraform Security & Quality Scan"
+  security-and-quality-checks:
+    name: "Pre-Destroy Code Validation"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Requis pour Trufflehog
+          fetch-depth: 0
 
-      # Détection fuites de secrets (Trufflehog)
+      # Vérification des secrets
       - name: Scan for Secret Leaks
         uses: trufflesecurity/trufflehog@main
         with:
@@ -28,7 +22,7 @@ jobs:
           head: HEAD
           extra_args: --debug --only-verified
 
-      # Analyse de Qualité / Best Practices (TFLint)
+      # Linter de qualité
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v4
         with:
@@ -40,7 +34,7 @@ jobs:
       - name: Run TFLint
         run: tflint -f compact
 
-      # Scan de Sécurité IaC / Mauvaises configurations (Trivy)
+      # Scanner de vulnérabilités
       - name: Run Trivy IaC Scanner
         uses: aquasecurity/trivy-action@master
         with:
@@ -48,16 +42,12 @@ jobs:
           hide-progress: false
           format: 'table'
           exit-code: '0' # (Warning) Ne bloque pas le pipeline si une faille critique/haute est détectée
-          ignore-unfixed: true
           severity: 'CRITICAL,HIGH'
 
-  # ==========================================
-  # JOB 2 : DÉPLOIEMENT
-  # ==========================================
-  terraform-deploy:
-    name: "Terraform Apply"
+  terraform-destroy:
+    name: "Terraform Destroy"
     runs-on: ubuntu-latest
-    needs: [terraform-checks]
+    needs: [security-and-quality-checks]
 
     steps:
       - name: Checkout Code
@@ -78,8 +68,5 @@ jobs:
       - name: Terraform Init
         run: terraform init -reconfigure
 
-      - name: Terraform Format Check
-        run: terraform fmt -check
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve
