@@ -21,6 +21,18 @@ resource "aws_instance" "web_server" {
   subnet_id              = aws_subnet.public.id
   vpc_security_group_ids = [aws_security_group.web_sg.id]
 
+  # AWS-0131 : Chiffrement du disque racine au repos
+  root_block_device {
+    encrypted = true
+  }
+
+  # AWS-0028 : Sécurisation IMDSv2 requise
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required" # Force IMDSv2
+    instance_metadata_tags      = "disabled"
+  }
+
   # Script de démarrage pour installer Nginx automatiquement
   user_data = <<-EOF
               #!/bin/bash
