@@ -1,43 +1,83 @@
-name: "AWS Terraform GitOps"
+name: "AWS Terraform DevSecOps"
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-  terraform:
+  # ==========================================
+  # JOB 1 : SÉCURITÉ, LINTEUR & QUALITÉ IaC
+  # ==========================================
+  terraform-checks:
+    name: "Terraform Security & Quality Scan"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Requis pour Trufflehog
+
+      # Détection fuites de secrets (Trufflehog)
+      - name: Scan for Secret Leaks
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
+      # Analyse de Qualité / Best Practices (TFLint)
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: v0.50.0
+
+      - name: Init TFLint
+        run: tflint --init
+
+      - name: Run TFLint
+        run: tflint -f compact
+
+      # Scan de Sécurité IaC / Mauvaises configurations (Trivy)
+      - name: Run Trivy IaC Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          hide-progress: false
+          format: 'table'
+          exit-code: '1' # Bloque le pipeline si une faille critique/haute est détectée
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
+
+  # ==========================================
+  # JOB 2 : DÉPLOIEMENT
+  # ==========================================
+  terraform-deploy:
     name: "Terraform Apply"
     runs-on: ubuntu-latest
-
+    needs: [terraform-checks]
     steps:
-      # 1. Récupérer le code du dépôt GitHub
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Installer le CLI Terraform sur le runner GitHub
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.5.0"
 
-      # 3. Configurer les identifiants AWS de manière sécurisée
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-3 # Paris
+          aws-region: eu-west-3
 
-      # 4. Initialiser Terraform (Va se connecter à ton S3 distant et DynamoDB)
       - name: Terraform Init
         run: terraform init -reconfigure
 
-      # 5. Vérifier la conformité du format du code
       - name: Terraform Format Check
         run: terraform fmt -check
 
-      # 6. Déployer l'infrastructure sur AWS automatiquement
       - name: Terraform Apply
         run: terraform apply -auto-approve
