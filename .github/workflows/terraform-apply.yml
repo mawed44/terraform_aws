@@ -2,8 +2,9 @@ name: "AWS Terraform GitOps"
 
 on:
   push:
-    branches:
-      - main # Le pipeline se déclenche uniquement sur la branche principale
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   terraform:
