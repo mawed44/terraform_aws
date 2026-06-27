@@ -1,0 +1,16 @@
+# Fichiers locaux de cache de Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Fichiers de variables (qui peuvent contenir des secrets)
+*.tfvars
+*.tfvars.json
+
+# Fichiers de log et de crash
+crash.log
+*.log
+
+# Fichiers de configuration d'override locaux
+override.tf
+override.tf.json

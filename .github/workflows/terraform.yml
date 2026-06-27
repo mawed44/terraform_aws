@@ -1,0 +1,42 @@
+name: "AWS Terraform GitOps"
+
+on:
+  push:
+    branches:
+      - main # Le pipeline se déclenche uniquement sur la branche principale
+
+jobs:
+  terraform:
+    name: "Terraform Apply"
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Récupérer le code du dépôt GitHub
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Installer le CLI Terraform sur le runner GitHub
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.0"
+
+      # 3. Configurer les identifiants AWS de manière sécurisée
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-3 # Paris
+
+      # 4. Initialiser Terraform (Va se connecter à ton S3 distant et DynamoDB)
+      - name: Terraform Init
+        run: terraform init -reconfigure
+
+      # 5. Vérifier la conformité du format du code
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
+      # 6. Déployer l'infrastructure sur AWS automatiquement
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
