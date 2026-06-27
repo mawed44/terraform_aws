@@ -1,5 +1,6 @@
 name: "AWS Terraform - Destruction Manuelle"
 
+
 on:
   workflow_dispatch:
 
@@ -18,8 +19,6 @@ jobs:
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
           extra_args: --debug --only-verified
 
       # Linter de qualité
