@@ -1,14 +1,14 @@
 variable "aws_region" {
-  type        = string
-  default     = "eu-west-3" # Paris
+  type    = string
+  default = "eu-west-3" # Paris
 }
 
 variable "instance_type" {
-  type        = string
-  default     = "t2.micro"
+  type    = string
+  default = "t3.micro"
 }
 
 variable "project_name" {
-  type        = string
-  default     = "terraform-iac-gitops"
+  type    = string
+  default = "terraform-iac-gitops"
 }

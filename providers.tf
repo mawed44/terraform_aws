@@ -11,9 +11,9 @@ terraform {
   backend "s3" {
     bucket         = "mf-iac-terraform-aws"
     key            = "state/terraform.tfstate"
-    region         = "eu-west-3"                       # Paris
-    dynamodb_table = "terraform-state-lock"            # Table pour le verrouillage
-    encrypt        = true                              # Chiffrement du fichier d'état
+    region         = "eu-west-3"            # Paris
+    dynamodb_table = "terraform-state-lock" # Table pour le verrouillage
+    encrypt        = true                   # Chiffrement du fichier d'état
   }
 }
 
