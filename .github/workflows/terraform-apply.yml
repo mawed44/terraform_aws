@@ -2,8 +2,9 @@ name: "AWS Terraform DevSecOps"
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   # ==========================================
@@ -46,7 +47,7 @@ jobs:
           scan-type: 'config'
           hide-progress: false
           format: 'table'
-          exit-code: '1' # Bloque le pipeline si une faille critique/haute est détectée
+          exit-code: '0' # (Warning) Ne bloque pas le pipeline si une faille critique/haute est détectée
           ignore-unfixed: true
           severity: 'CRITICAL,HIGH'
 

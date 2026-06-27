@@ -1,5 +1,3 @@
-# AWS-0164 : Ignore requis pour l'architecture mono-publique (évite un NAT Gateway payant)
-#trivy:ignore:aws-vpc-no-public-egress-sgr
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
