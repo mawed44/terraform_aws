@@ -40,7 +40,7 @@ La réponse apportée par ce projet repose sur deux piliers :
 ## Architecture du projet
 
 Cette architecture illustre la logique DevSecOps et GitOps du projet.
-Elle montre le chemin complet entre le développeur, la chaîne de validation, le déploiement Terraform et l'accès final à l'infrastructure AWS.
+Elle montre le chemin complet entre le developpeur, la chaine de validation, le deploiement Terraform et l'acces final a l'infrastructure AWS.
 
 <p align="center">
   <img alt="GitHub" src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white">
@@ -52,28 +52,28 @@ Elle montre le chemin complet entre le développeur, la chaîne de validation, l
 ```mermaid
 %%{init: {"flowchart": {"nodeSpacing": 35, "rankSpacing": 45, "curve": "basis"}}}%%
 flowchart LR
-    Dev[👨‍💻<br/>Développeur] -->|Push / Pull Request| GH[🐙<br/>GitHub Repository] --> CI0
+    Dev[Developpeur] -->|Push / Pull Request| GH[GitHub Repository] --> CI0
 
     subgraph CI["CI : code & quality gate"]
         direction TB
-        CI0[🔄<br/>CI Gate] --> CI1[📥<br/>Checkout] --> CI2[🔍<br/>TruffleHog] --> CI3[🧪<br/>TFLint] --> CI4[🛡️<br/>Trivy]
+        CI0[CI Gate] --> CI1[Checkout] --> CI2[TruffleHog] --> CI3[TFLint] --> CI4[Trivy]
     end
 
     CI4 --> CD0
 
     subgraph CD["CD : infrastructure deployment"]
         direction TB
-        CD0[🚀<br/>CD Gate] --> CD1[🔑<br/>Terraform Init] --> CD2[🪣<br/>State Lock] --> CD3[⚙️<br/>Apply / Destroy] --> CD4[☁️<br/>AWS API]
+        CD0[CD Gate] --> CD1[Terraform Init] --> CD2[State Lock] --> CD3[Apply / Destroy] --> CD4[AWS API]
     end
 
     CD4 --> AWS0
 
     subgraph AWS["AWS target environment"]
         direction TB
-        AWS0[🌐<br/>VPC] --> AWS1[📶<br/>Subnet public] --> AWS2[🔒<br/>Security Group] --> AWS3[🖥️<br/>EC2 Ubuntu<br/>+ Nginx] --> User[👥<br/>Utilisateur final]
+        AWS0[VPC] --> AWS1[Subnet public] --> AWS2[Security Group] --> AWS3[EC2 Ubuntu + Nginx] --> User[Utilisateur final]
     end
 
-    CD3 --> Mail[📧<br/>Notification email]
+    CD3 --> Mail[Notification email]
 
     style CI fill:#fff8cf,stroke:#d4b106,stroke-width:1px,color:#111827
     style CD fill:#fff8cf,stroke:#d4b106,stroke-width:1px,color:#111827
