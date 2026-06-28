@@ -37,6 +37,59 @@ La réponse apportée par ce projet repose sur deux piliers :
 1. **Terraform** pour décrire et provisionner l'infrastructure de façon déclarative.
 2. **GitHub Actions** pour automatiser les contrôles, le déploiement et la destruction de l'environnement.
 
+## Architecture du projet
+
+```mermaid
+flowchart TD
+    %% Style général
+    classDef ciStyle fill:#1f2937,stroke:#3b82f6,stroke-width:2px,color:#fff;
+    classDef cdStyle fill:#111827,stroke:#10b981,stroke-width:2px,color:#fff;
+    classDef awsStyle fill:#232f3e,stroke:#ff9900,stroke-width:2px,color:#fff;
+    classDef devStyle fill:#4b5563,stroke:#9ca3af,stroke-width:1px,color:#fff;
+
+    %% Flux Principal
+    Dev([💻 Développeur]) -->|Push Code / Main| GH[🐙 GitHub Repository]
+    GH -->|Trigger Actions| CI_Job
+    
+    %% Section CI
+    subgraph CI_Job [🔄 Jenkins/GitHub CI Job : Code & Quality Gate]
+        direction LR
+        A[Pull Code] --> B[TruffleHog<br>📦 Filesystem Scan]
+        B --> C[TFLint<br>📝 Code Quality]
+        C --> D[Trivy<br>🛡️ IaC Security Check]
+    end
+    class CI_Job ciStyle;
+
+    %% Passage de la Gate
+    CI_Job -->|Si 100% Vert / Gate Passed| CD_Job
+
+    %% Section CD
+    subgraph CD_Job [🚀 Jenkins/GitHub CD Job : Infrastructure Deployment]
+        direction TB
+        E[Terraform Init<br>🔑 S3 Backend] -->|State Lock| F[AWS DynamoDB<br>🔒 Table Lock]
+        E --> G[Terraform Apply / Destroy<br>🤖 Orchestration]
+        G --> H[AWS Engine Cloud API]
+    end
+    class CD_Job cdStyle;
+
+    %% Section AWS & Target
+    subgraph AWS_Target [☁️ AWS Production Environment]
+        direction LR
+        I[AWS VPC / Subnet] --> J[EC2 Instance<br>🌐 Nginx Web Server]
+    end
+    class AWS_Target awsStyle;
+
+    H -->|Provisionne| AWS_Target
+    
+    %% Notifications & Users
+    CD_Job -->|Notify on status| Mail[✉️ Gmail SMTP Notification]
+    J <-->|Access Web Port 80| User([👥 Utilisateur Final])
+
+    %% Application des styles
+    class Dev,User devStyle;
+    class Mail fill:#d92727,stroke:#b91c1c,color:#fff;
+```
+
 ## Arborescence
 
 - [`main.tf`](./main.tf) : ressource principale et instance EC2.
