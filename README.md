@@ -50,36 +50,41 @@ Elle montre le chemin complet entre le développeur, la chaîne de validation, l
 </p>
 
 ```mermaid
+%%{init: {"flowchart": {"nodeSpacing": 85, "rankSpacing": 120, "curve": "basis"}}}%%
 flowchart TB
-    Dev[👨‍💻 Développeur] -->|Push / Pull Request| GH[🐙 GitHub Repository]
+    Dev[👨‍💻<br/>Développeur] -->|Push / Pull Request| GH[🐙<br/>GitHub Repository]
     GH --> CI0
 
     subgraph CI["CI : code & quality gate"]
         direction LR
-        CI0[🔄 CI Gate] --> CI1[📥 Checkout] --> CI2[🔍 TruffleHog] --> CI3[🧪 TFLint] --> CI4[🛡️ Trivy IaC scan]
+        CI0[🔄<br/>CI Gate] --> CI1[📥<br/>Checkout] --> CI2[🔍<br/>TruffleHog] --> CI3[🧪<br/>TFLint] --> CI4[🛡️<br/>Trivy IaC scan]
     end
 
     CI4 --> CD0
 
     subgraph CD["CD : infrastructure deployment"]
         direction LR
-        CD0[🚀 CD Gate] --> CD1[🔑 Terraform Init] --> CD2[🪣 S3 backend + DynamoDB lock] --> CD3[⚙️ Terraform Apply / Destroy] --> CD4[☁️ AWS API]
+        CD0[🚀<br/>CD Gate] --> CD1[🔑<br/>Terraform Init] --> CD2[🪣<br/>S3 backend<br/>+ DynamoDB lock] --> CD3[⚙️<br/>Terraform Apply<br/>/ Destroy] --> CD4[☁️<br/>AWS API]
     end
 
     CD4 --> AWS0
 
     subgraph AWS["AWS target environment"]
         direction LR
-        AWS0[🌐 VPC] --> AWS1[📶 Subnet public] --> AWS2[🔒 Security Group] --> AWS3[🖥️ EC2 Ubuntu + Nginx] --> User[👥 Utilisateur final]
+        AWS0[🌐<br/>VPC] --> AWS1[📶<br/>Subnet public] --> AWS2[🔒<br/>Security Group] --> AWS3[🖥️<br/>EC2 Ubuntu<br/>+ Nginx] --> User[👥<br/>Utilisateur final]
     end
 
-    CD3 --> Mail[📧 Notification email]
+    CD3 --> Mail[📧<br/>Notification email]
 
-    classDef ciStyle fill:#1f2937,stroke:#3b82f6,stroke-width:2px,color:#fff;
-    classDef cdStyle fill:#111827,stroke:#10b981,stroke-width:2px,color:#fff;
-    classDef awsStyle fill:#232f3e,stroke:#ff9900,stroke-width:2px,color:#fff;
-    classDef devStyle fill:#4b5563,stroke:#9ca3af,stroke-width:1px,color:#fff;
-    classDef mailStyle fill:#d92727,stroke:#b91c1c,stroke-width:2px,color:#fff;
+    style CI fill:#fff8cf,stroke:#d4b106,stroke-width:1px,color:#111827
+    style CD fill:#fff8cf,stroke:#d4b106,stroke-width:1px,color:#111827
+    style AWS fill:#fff8cf,stroke:#d4b106,stroke-width:1px,color:#111827
+
+    classDef ciStyle fill:#1f2937,stroke:#2563eb,stroke-width:2px,color:#fff;
+    classDef cdStyle fill:#1f2937,stroke:#10b981,stroke-width:2px,color:#fff;
+    classDef awsStyle fill:#1f2937,stroke:#f59e0b,stroke-width:2px,color:#fff;
+    classDef devStyle fill:#6b7280,stroke:#d1d5db,stroke-width:1px,color:#fff;
+    classDef mailStyle fill:#dc2626,stroke:#b91c1c,stroke-width:2px,color:#fff;
 
     class Dev,User devStyle;
     class CI0,CI1,CI2,CI3,CI4 ciStyle;
