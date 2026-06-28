@@ -37,6 +37,68 @@ La réponse apportée par ce projet repose sur deux piliers :
 1. **Terraform** pour décrire et provisionner l'infrastructure de façon déclarative.
 2. **GitHub Actions** pour automatiser les contrôles, le déploiement et la destruction de l'environnement.
 
+## Architecture du projet
+
+Cette architecture illustre la logique DevSecOps et GitOps du projet.
+Elle montre le chemin complet entre le developpeur, la chaine de validation, le deploiement Terraform et l'acces final a l'infrastructure AWS.
+
+<p align="center">
+  <img alt="GitHub" src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white">
+  <img alt="Terraform" src="https://img.shields.io/badge/Terraform-844FBA?style=for-the-badge&logo=terraform&logoColor=white">
+  <img alt="AWS" src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white">
+  <img alt="Email" src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white">
+</p>
+
+```mermaid
+%%{init: {"flowchart": {"nodeSpacing": 35, "rankSpacing": 45, "curve": "basis"}}}%%
+flowchart LR
+    Dev[Developpeur] -->|Push / Pull Request| GH[GitHub Repository] --> CI0
+
+    subgraph CI["CI : code & quality gate"]
+        direction TB
+        CI0[CI Gate] --> CI1[Checkout] --> CI2[TruffleHog] --> CI3[TFLint] --> CI4[Trivy]
+    end
+
+    CI4 --> CD0
+
+    subgraph CD["CD : infrastructure deployment"]
+        direction TB
+        CD0[CD Gate] --> CD1[Terraform Init] --> CD2[State Lock] --> CD3[Apply / Destroy] --> CD4[AWS API]
+    end
+
+    CD4 --> AWS0
+
+    subgraph AWS["AWS target environment"]
+        direction TB
+        AWS0[VPC] --> AWS1[Subnet public] --> AWS2[Security Group] --> AWS3[EC2 Ubuntu + Nginx] --> User[Utilisateur final]
+    end
+
+    CD3 --> Mail[Notification email]
+
+    style CI fill:#fff8cf,stroke:#d4b106,stroke-width:1px,color:#111827
+    style CD fill:#fff8cf,stroke:#d4b106,stroke-width:1px,color:#111827
+    style AWS fill:#fff8cf,stroke:#d4b106,stroke-width:1px,color:#111827
+
+    classDef ciStyle fill:#1f2937,stroke:#2563eb,stroke-width:2px,color:#fff;
+    classDef cdStyle fill:#1f2937,stroke:#10b981,stroke-width:2px,color:#fff;
+    classDef awsStyle fill:#1f2937,stroke:#f59e0b,stroke-width:2px,color:#fff;
+    classDef devStyle fill:#6b7280,stroke:#d1d5db,stroke-width:1px,color:#fff;
+    classDef mailStyle fill:#dc2626,stroke:#b91c1c,stroke-width:2px,color:#fff;
+
+    class Dev,User devStyle;
+    class CI0,CI1,CI2,CI3,CI4 ciStyle;
+    class CD0,CD1,CD2,CD3,CD4 cdStyle;
+    class AWS0,AWS1,AWS2,AWS3 awsStyle;
+    class Mail mailStyle;
+```
+
+En pratique :
+
+- la CI filtre les risques avant tout déploiement ;
+- la CD applique ou détruit l'infrastructure de manière contrôlée ;
+- le backend S3 et le verrouillage DynamoDB sécurisent le state Terraform ;
+- la notification email permet de suivre l'état du pipeline sans ouvrir GitHub Actions.
+
 ## Arborescence
 
 - [`main.tf`](./main.tf) : ressource principale et instance EC2.
