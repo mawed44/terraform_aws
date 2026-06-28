@@ -198,20 +198,8 @@ Ce projet m'a permis d'apprendre plusieurs points importants :
 - un serveur Nginx démarré automatiquement ;
 - un point d'entrée simple pour tester un déploiement automatisé de bout en bout.
 
-## Points de vigilance
+---
 
-- Le Security Group autorise le port `22` depuis `0.0.0.0/0`, ce qui est pratique pour les tests mais à restreindre en environnement réel.
-- Le workflow `terraform-apply.yml` applique l'infrastructure pendant une pull request. Selon le contexte, il peut être plus prudent de réserver l'`apply` à un push sur `main` ou à un déploiement manuel.
-- Le backend S3 et la table DynamoDB doivent exister avant `terraform init`.
+## Licence
 
-## Améliorations possibles
-
-- restreindre davantage les règles réseau ;
-- ajouter un `terraform validate` dans le pipeline ;
-- séparer les environnements `dev`, `staging` et `prod` ;
-- remplacer l'ouverture SSH publique par un accès plus sécurisé ;
-- ajouter un module Terraform pour rendre le projet plus modulaire.
-
-## Auteur
-
-Projet réalisé dans une logique d'apprentissage autour de Terraform, AWS et GitHub Actions.
+Ce projet est sous licence **MIT** — voir le fichier [LICENSE](LICENSE) pour plus de détails.
