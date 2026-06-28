@@ -14,3 +14,6 @@ crash.log
 # Fichiers de configuration d'override locaux
 override.tf
 override.tf.json
+
+# Fichiers de configuration AWS S3 & DynamoDB
+script-s3-dynamodb.txt
