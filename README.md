@@ -50,36 +50,29 @@ Elle montre le chemin complet entre le développeur, la chaîne de validation, l
 </p>
 
 ```mermaid
-flowchart LR
+flowchart TB
     Dev[👨‍💻 Développeur] -->|Push / Pull Request| GH[🐙 GitHub Repository]
-    GH --> CI0[🔄 CI Gate]
+    GH --> CI0
 
     subgraph CI["CI : code & quality gate"]
-        direction TB
-        CI0 --> CI1[📥 Checkout]
-        CI1 --> CI2[🔍 TruffleHog]
-        CI2 --> CI3[🧪 TFLint]
-        CI3 --> CI4[🛡️ Trivy IaC scan]
+        direction LR
+        CI0[🔄 CI Gate] --> CI1[📥 Checkout] --> CI2[🔍 TruffleHog] --> CI3[🧪 TFLint] --> CI4[🛡️ Trivy IaC scan]
     end
 
-    CI4 --> CD0[🚀 CD Gate]
+    CI4 --> CD0
 
     subgraph CD["CD : infrastructure deployment"]
-        direction TB
-        CD0 --> CD1[🔑 Terraform Init]
-        CD1 --> CD2[🪣 S3 backend + DynamoDB lock]
-        CD2 --> CD3[⚙️ Terraform Apply / Destroy]
-        CD3 --> CD4[☁️ AWS API]
+        direction LR
+        CD0[🚀 CD Gate] --> CD1[🔑 Terraform Init] --> CD2[🪣 S3 backend + DynamoDB lock] --> CD3[⚙️ Terraform Apply / Destroy] --> CD4[☁️ AWS API]
     end
 
     CD4 --> AWS0
 
     subgraph AWS["AWS target environment"]
         direction LR
-        AWS0[🌐 VPC] --> AWS1[📶 Subnet public] --> AWS2[🔒 Security Group] --> AWS3[🖥️ EC2 Ubuntu + Nginx]
+        AWS0[🌐 VPC] --> AWS1[📶 Subnet public] --> AWS2[🔒 Security Group] --> AWS3[🖥️ EC2 Ubuntu + Nginx] --> User[👥 Utilisateur final]
     end
 
-    AWS3 --> User[👥 Utilisateur final]
     CD3 --> Mail[📧 Notification email]
 
     classDef ciStyle fill:#1f2937,stroke:#3b82f6,stroke-width:2px,color:#fff;
