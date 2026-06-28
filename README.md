@@ -44,43 +44,43 @@ Elle montre le chemin complet entre le développeur, la chaîne de validation, l
 
 <p align="center">
   <img alt="GitHub" src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white">
-  <img alt="Jenkins" src="https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=jenkins&logoColor=white">
   <img alt="Terraform" src="https://img.shields.io/badge/Terraform-844FBA?style=for-the-badge&logo=terraform&logoColor=white">
   <img alt="AWS" src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white">
-  <img alt="Docker" src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
-  <img alt="Kubernetes" src="https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white">
   <img alt="Email" src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white">
 </p>
 
 ```mermaid
-flowchart TD
+flowchart LR
     Dev[👨‍💻 Développeur] -->|Push / Pull Request| GH[🐙 GitHub Repository]
-    GH --> CI_Start
+    GH --> CI0[🔄 CI Gate]
 
-    subgraph CI["CI : code et quality gate"]
-        direction LR
-        CI_Start[Checkout] --> TruffleHog[🔍 TruffleHog]
-        TruffleHog --> TFLint[🧪 TFLint]
-        TFLint --> Trivy[🛡️ Trivy IaC scan]
+    subgraph CI["CI : code & quality gate"]
+        direction TB
+        CI0 --> CI1[📥 Checkout]
+        CI1 --> CI2[🔍 TruffleHog]
+        CI2 --> CI3[🧪 TFLint]
+        CI3 --> CI4[🛡️ Trivy IaC scan]
     end
 
-    Trivy --> CD_Start
+    CI4 --> CD0[🚀 CD Gate]
 
     subgraph CD["CD : infrastructure deployment"]
         direction TB
-        CD_Start[Terraform Init] --> Backend[🪣 S3 backend + DynamoDB lock] --> Apply[🚀 Terraform Apply / Destroy]
-        Apply --> AWSAPI[☁️ AWS API]
+        CD0 --> CD1[🔑 Terraform Init]
+        CD1 --> CD2[🪣 S3 backend + DynamoDB lock]
+        CD2 --> CD3[⚙️ Terraform Apply / Destroy]
+        CD3 --> CD4[☁️ AWS API]
     end
 
-    AWSAPI --> VPC
+    CD4 --> AWS0
 
-    subgraph Infra["AWS target environment"]
+    subgraph AWS["AWS target environment"]
         direction LR
-        VPC[🌐 VPC + subnet public] --> EC2[🖥️ EC2 Ubuntu + Nginx]
+        AWS0[🌐 VPC] --> AWS1[📶 Subnet public] --> AWS2[🔒 Security Group] --> AWS3[🖥️ EC2 Ubuntu + Nginx]
     end
 
-    EC2 --> User[👥 Utilisateur final]
-    Apply --> Mail[📧 Notification email]
+    AWS3 --> User[👥 Utilisateur final]
+    CD3 --> Mail[📧 Notification email]
 
     classDef ciStyle fill:#1f2937,stroke:#3b82f6,stroke-width:2px,color:#fff;
     classDef cdStyle fill:#111827,stroke:#10b981,stroke-width:2px,color:#fff;
@@ -89,9 +89,9 @@ flowchart TD
     classDef mailStyle fill:#d92727,stroke:#b91c1c,stroke-width:2px,color:#fff;
 
     class Dev,User devStyle;
-    class CI_Start,TruffleHog,TFLint,Trivy ciStyle;
-    class CD_Start,Backend,Apply,AWSAPI cdStyle;
-    class VPC,EC2 awsStyle;
+    class CI0,CI1,CI2,CI3,CI4 ciStyle;
+    class CD0,CD1,CD2,CD3,CD4 cdStyle;
+    class AWS0,AWS1,AWS2,AWS3 awsStyle;
     class Mail mailStyle;
 ```
 
