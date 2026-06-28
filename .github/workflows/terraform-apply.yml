@@ -52,7 +52,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
   # ==========================================
-  # JOB 2 : DÉPLOIEMENT
+  # JOB 2 : DÉPLOIEMENT INFRASTRUCTURE AWS
   # ==========================================
   terraform-deploy:
     name: "Terraform Apply"
@@ -82,3 +82,40 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
+
+# ==========================================
+# JOB 3 : NOTIFICATION EMAIL (DÉPLOIEMENT)
+# ==========================================
+  notify:
+    name: "Email Notification"
+    runs-on: ubuntu-latest
+    needs: [terraform-deploy]
+    if: always()
+    
+    steps:
+      - name: Send Mail
+        uses: dawidd6/action-send-mail@v3
+        with:
+          # Configuration du serveur SMTP
+          server_address: smtp.gmail.com 
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          
+          # Destinataire et Émetteur
+          subject: "Pipeline AWS-Terraform : Deployment ${{ needs.terraform-deploy.result }}"
+          to: ${{ secrets.NOTIFICATION_EMAIL }}
+          from: "GitHub Actions <${{ secrets.MAIL_USERNAME }}>"
+          
+          # Contenu de l'email au format Markdown/Texte
+          body: |
+            Bonjour,
+            
+            Le pipeline de déploiement de l'infrastructure AWS a terminé son exécution.
+            
+            Statut final : ${{ needs.terraform-deploy.result }}
+            
+            Détails de l'exécution et logs : https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            
+            --
+            CI/CD GitOps
