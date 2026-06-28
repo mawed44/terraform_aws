@@ -39,43 +39,48 @@ La réponse apportée par ce projet repose sur deux piliers :
 
 ## Architecture du projet
 
-Cette architecture illustre la logique DevSecOps et GitOps du projet :
+Cette architecture illustre la logique DevSecOps et GitOps du projet.
+Elle montre le chemin complet entre le développeur, la chaîne de validation, le déploiement Terraform et l'accès final à l'infrastructure AWS.
 
-- un push ou une pull request déclenche le pipeline ;
-- la partie CI vérifie la qualité du code et la sécurité de l'IaC ;
-- la partie CD initialise Terraform puis déploie ou détruit l'infrastructure ;
-- un email de notification est envoyé à la fin du pipeline ;
-- l'utilisateur final accède ensuite au serveur web hébergé sur AWS.
+<p align="center">
+  <img alt="GitHub" src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white">
+  <img alt="Jenkins" src="https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=jenkins&logoColor=white">
+  <img alt="Terraform" src="https://img.shields.io/badge/Terraform-844FBA?style=for-the-badge&logo=terraform&logoColor=white">
+  <img alt="AWS" src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white">
+  <img alt="Docker" src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
+  <img alt="Kubernetes" src="https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white">
+  <img alt="Email" src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white">
+</p>
 
 ```mermaid
 flowchart TD
-    Dev[Developpeur] -->|Push / Pull Request| GH[GitHub Repository]
+    Dev[👨‍💻 Développeur] -->|Push / Pull Request| GH[🐙 GitHub Repository]
     GH --> CI_Start
 
     subgraph CI["CI : code et quality gate"]
         direction LR
-        CI_Start[Checkout] --> TruffleHog[TruffleHog]
-        TruffleHog --> TFLint[TFLint]
-        TFLint --> Trivy[Trivy IaC scan]
+        CI_Start[Checkout] --> TruffleHog[🔍 TruffleHog]
+        TruffleHog --> TFLint[🧪 TFLint]
+        TFLint --> Trivy[🛡️ Trivy IaC scan]
     end
 
     Trivy --> CD_Start
 
     subgraph CD["CD : infrastructure deployment"]
         direction TB
-        CD_Start[Terraform Init] --> Backend[S3 backend + DynamoDB lock] --> Apply[Terraform Apply / Destroy]
-        Apply --> AWSAPI[AWS API]
+        CD_Start[Terraform Init] --> Backend[🪣 S3 backend + DynamoDB lock] --> Apply[🚀 Terraform Apply / Destroy]
+        Apply --> AWSAPI[☁️ AWS API]
     end
 
     AWSAPI --> VPC
 
     subgraph Infra["AWS target environment"]
         direction LR
-        VPC[VPC + subnet public] --> EC2[EC2 Ubuntu + Nginx]
+        VPC[🌐 VPC + subnet public] --> EC2[🖥️ EC2 Ubuntu + Nginx]
     end
 
-    EC2 --> User[Utilisateur final]
-    Apply --> Mail[Notification email]
+    EC2 --> User[👥 Utilisateur final]
+    Apply --> Mail[📧 Notification email]
 
     classDef ciStyle fill:#1f2937,stroke:#3b82f6,stroke-width:2px,color:#fff;
     classDef cdStyle fill:#111827,stroke:#10b981,stroke-width:2px,color:#fff;
@@ -89,6 +94,13 @@ flowchart TD
     class VPC,EC2 awsStyle;
     class Mail mailStyle;
 ```
+
+En pratique :
+
+- la CI filtre les risques avant tout déploiement ;
+- la CD applique ou détruit l'infrastructure de manière contrôlée ;
+- le backend S3 et le verrouillage DynamoDB sécurisent le state Terraform ;
+- la notification email permet de suivre l'état du pipeline sans ouvrir GitHub Actions.
 
 ## Arborescence
 
