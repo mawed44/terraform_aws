@@ -50,27 +50,26 @@ Elle montre le chemin complet entre le développeur, la chaîne de validation, l
 </p>
 
 ```mermaid
-%%{init: {"flowchart": {"nodeSpacing": 85, "rankSpacing": 120, "curve": "basis"}}}%%
-flowchart TB
-    Dev[👨‍💻<br/>Développeur] -->|Push / Pull Request| GH[🐙<br/>GitHub Repository]
-    GH --> CI0
+%%{init: {"flowchart": {"nodeSpacing": 35, "rankSpacing": 45, "curve": "basis"}}}%%
+flowchart LR
+    Dev[👨‍💻<br/>Développeur] -->|Push / Pull Request| GH[🐙<br/>GitHub Repository] --> CI0
 
     subgraph CI["CI : code & quality gate"]
-        direction LR
-        CI0[🔄<br/>CI Gate] --> CI1[📥<br/>Checkout] --> CI2[🔍<br/>TruffleHog] --> CI3[🧪<br/>TFLint] --> CI4[🛡️<br/>Trivy IaC scan]
+        direction TB
+        CI0[🔄<br/>CI Gate] --> CI1[📥<br/>Checkout] --> CI2[🔍<br/>TruffleHog] --> CI3[🧪<br/>TFLint] --> CI4[🛡️<br/>Trivy]
     end
 
     CI4 --> CD0
 
     subgraph CD["CD : infrastructure deployment"]
-        direction LR
-        CD0[🚀<br/>CD Gate] --> CD1[🔑<br/>Terraform Init] --> CD2[🪣<br/>S3 backend<br/>+ DynamoDB lock] --> CD3[⚙️<br/>Terraform Apply<br/>/ Destroy] --> CD4[☁️<br/>AWS API]
+        direction TB
+        CD0[🚀<br/>CD Gate] --> CD1[🔑<br/>Terraform Init] --> CD2[🪣<br/>State Lock] --> CD3[⚙️<br/>Apply / Destroy] --> CD4[☁️<br/>AWS API]
     end
 
     CD4 --> AWS0
 
     subgraph AWS["AWS target environment"]
-        direction LR
+        direction TB
         AWS0[🌐<br/>VPC] --> AWS1[📶<br/>Subnet public] --> AWS2[🔒<br/>Security Group] --> AWS3[🖥️<br/>EC2 Ubuntu<br/>+ Nginx] --> User[👥<br/>Utilisateur final]
     end
 
