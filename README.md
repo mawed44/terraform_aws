@@ -17,6 +17,10 @@ L'infrastructure créée comprend :
 
 Le tout est géré par Terraform avec un stockage distant du state dans S3 et un verrouillage via DynamoDB.
 
+## Apercu instance EC2 AWS
+
+![Apercu instance EC2 AWS](images/instance_ec2.png)
+
 ## Problématique
 
 Avant ce projet, le déploiement d'une infrastructure cloud pouvait être :
